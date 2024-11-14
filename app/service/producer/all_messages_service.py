@@ -1,7 +1,10 @@
 import os
+from collections import Counter
 
 from dotenv import load_dotenv
 
+from app.db.models import HostageMessages, ExplosiveMessages
+from app.db.sql_database import session_maker
 from app.kafka_settings.producer import produce
 
 load_dotenv(verbose=True)
@@ -11,12 +14,13 @@ hostage_messages_topic = os.environ['ALL_HOSTAGE_TOPIC']
 
 
 
+
 def producer(message):
-    produce_all_messages(message)
     if include_word('explos',message):
         produce_explosive_emails(message)
     elif include_word('hostage',message):
         produce_hostage_emails(message)
+    produce_all_messages(message)
 
 def produce_all_messages(message):
     produce(
@@ -45,12 +49,28 @@ def produce_hostage_emails(message):
 def include_word(threat, message):
     return any(threat in str(sentence) for sentence in message['sentences'])
 
-
-
 def change_threat_to_index_0(threat, message):
-    for sentence in message['sentences']:
-        if sentence.lower().__contains__(threat):
-            popped = message['sentences'].pop(sentence)
+
+    messages = message['sentences']
+    for i, sentence in enumerate(messages):
+        if threat.lower() in sentence.lower():
+            popped = message['sentences'].pop(i)
             message['sentences'].insert(0, popped)
+            break
     return message
+
+def find_common_word():
+    words = []
+    with session_maker() as session:
+        result = session.query(HostageMessages.sentence).union(
+            session.query(ExplosiveMessages.sentence)
+        ).all()
+        for sentence_tuple in result:
+            sentence = sentence_tuple[0]
+            words.extend(sentence.split())
+    words_rank = Counter(words).most_common(1)
+    return words_rank
+
+
+
 

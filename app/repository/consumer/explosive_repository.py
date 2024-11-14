@@ -6,7 +6,7 @@ from app.db.models.users import Users
 from app.db.sql_database import session_maker
 
 
-def insert_explosive_message(message):
+def insert_explosive(message):
     message = message.value
 
     inserted_user_id = insert_user(message)
@@ -15,12 +15,13 @@ def insert_explosive_message(message):
 
     insert_device(message, inserted_user_id)
 
-    insert_explosive_message(message, inserted_user_id)
+    insert_messages(message, inserted_user_id)
 
 
 def insert_user(message):
     with session_maker() as session:
         user_to_insert = Users(
+            email=message['email'],
             username=message['username'],
             ip_address=message['ip_address'],
             created_at=message['created_at']
@@ -60,7 +61,7 @@ def insert_device(message, user_id):
         return device_to_insert.id
 
 
-def insert_explosive_message(message, user_id):
+def insert_messages(message, user_id):
     messages_id = []
     for sentence in message['sentences']:
         with session_maker() as session:

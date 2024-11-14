@@ -5,7 +5,7 @@ from app.db.models.users import Users
 from app.db.sql_database import session_maker
 
 
-def insert_hostage_message(message):
+def insert_hostage(message):
     message = message.value
 
     inserted_user_id = insert_user(message)
@@ -24,6 +24,7 @@ def insert_hostage_message(message):
 def insert_user(message):
     with session_maker() as session:
         user_to_insert = Users(
+            email=message['email'],
             username= message['username'],
             ip_address = message['ip_address'],
             created_at = message['created_at']
@@ -34,6 +35,7 @@ def insert_user(message):
         return user_to_insert.id
 
 def insert_location(message, user_id):
+
     with session_maker() as session:
         location_to_insert = Locations(
             latitude= message['location']['latitude'],

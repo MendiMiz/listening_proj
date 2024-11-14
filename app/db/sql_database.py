@@ -1,8 +1,14 @@
 import os
-from sqlalchemy import create_engine, Column, Integer
-from sqlalchemy.orm import sessionmaker, declarative_base
 
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.db.models import Base
 
+load_dotenv(verbose=True)
 engine = create_engine(os.environ['SQL_URL'])
 session_maker = sessionmaker(bind=engine)
 
+def init_db():
+    Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
