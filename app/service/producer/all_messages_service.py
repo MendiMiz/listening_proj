@@ -42,11 +42,10 @@ def produce_hostage_emails(message):
     )
 
 
-def include_word(word, message):
-    for sentence in message['sentences']:
-        if sentence.lower().__contains__(word):
-            return True
-    return False
+def include_word(threat, message):
+    return any(threat in str(sentence) for sentence in message['sentences'])
+
+
 
 def change_threat_to_index_0(threat, message):
     for sentence in message['sentences']:

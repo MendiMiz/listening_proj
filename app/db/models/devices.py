@@ -10,5 +10,6 @@ class Devices(Base):
     browser = Column(String, nullable=False)
     os = Column(Float, nullable=False)
     device_id = Column(Float, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'))
 
     user = relationship("Users", back_populates="device")
